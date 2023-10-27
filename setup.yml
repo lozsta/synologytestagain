@@ -1,0 +1,17 @@
+---
+- hosts: localhost
+  become: yes
+  tasks:
+    - name: Ensure docker-compose is present
+      pip:
+        name: docker-compose
+        state: present
+
+    - name: Deploy Docker Containers
+      docker_compose:
+        project_src: "${DOCKERCONFDIR}"
+        state: present
+      environment:
+        PUID: "${PUID}"
+        PGID: "${PGID}"
+        TZ: "${TZ}"
