@@ -1,0 +1,54 @@
+version: '3.7'
+
+services:
+  qbitvpn:
+    image: "omegagoth/docker-nordvpn-qbittorrent:latest"
+    container_name: "qbitvpn"
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - LAN_NETWORK=${LAN_NETWORK}
+      - VPN_ENABLED=${VPN_ENABLED}
+    volumes:
+      - ${DOCKERCONFDIR}/qbitvpn:/config
+    ports:
+      - "${QBITVPN_PORT_WEBUI}:8080"
+      - "${QBITVPN_PORT_QBT}:6881"
+      - "${QBITVPN_PORT_QBT}:6881/udp"
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "${DOCKERLOGGING_MAXFILE}"
+        max-size: "${DOCKERLOGGING_MAXSIZE}"
+    networks:
+      - app_network
+
+  bazarr:
+    image: "linuxserver/bazarr:latest"
+    container_name: "bazarr"
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${DOCKERCONFDIR}/bazarr:/config
+    networks:
+      - app_network
+    ports:
+      - "${BAZARR_PORT}:${BAZARR_PORT}"
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "${DOCKERLOGGING_MAXFILE}"
+        max-size: "${DOCKERLOGGING_MAXSIZE}"
+
+  # ... [Repeat for other services like pullio, radarr, and sonarr]
+
+networks:
+  app_network:
+    driver: bridge
